@@ -7,11 +7,12 @@ export type Todo = {
     name: string,
     importance: number,
     completed: boolean,
-    deadline?: Date,
+    // deadline?: Date,
     categories: number[],
     subTodos: number[],
-    startTime?: Date,
-    timeInterval?: number,
+    time: string,
+    // startTime?: Date,
+    // timeInterval?: number,
 }
 export class TodoDB extends Dexie {
     todos!: Table<Todo, number>;
@@ -44,8 +45,8 @@ export class TodoDB extends Dexie {
 
     constructor() {
         super('TodoDB');
-        this.version(2).stores({
-            todos: "++id,name,importance,completed,deadline,*categories, *subTodos, startTime, timeInterval",
+        this.version(3).stores({
+            todos: "++id,name,importance,completed,deadline,*categories, *subTodos, time",
             categories: "++id, name",
             // subTodo: "parentId,childId",
             // todoCategory: "todoId,categoryId",
@@ -58,10 +59,10 @@ export class TodoDB extends Dexie {
             name: todoPayload.todo,
             importance: todoPayload.importance,
             completed: false,
-            deadline: new Date(todoPayload.deadline),
+            time: todoPayload.time,
             categories: todoPayload.categories,
             subTodos: [],
-
+            // time: todoPayload.
         })
         // this.todoCategory.bulkAdd(todoPayload.categories.map(t => ({
         //     categoryId: t,
@@ -76,9 +77,12 @@ export class TodoDB extends Dexie {
     async untimedTodos(): Promise<Todo[]> {
         return this
             .todos
-            .where('deadline').equals(undefined)
-            .or('startTime').equals(undefined)
-            .distinct()
+            .where({
+                time: ""
+            })
+            //         .where('deadline').equals(undefined)
+            //         .or('startTime').equals(undefined)
+            //         .distinct()
             .toArray();
     }
 }

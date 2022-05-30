@@ -5,13 +5,17 @@
         "start": "next start",
         "type-check": "tsc",
         "export": "next export -o dist",
-        "deploy": "./build.sh"
+        "deploy": "./build.sh",
+        "gp": "nearleyc time/parser.ne -o grammar.js",
+        "up": "nearley-unparse -s time_statement grammar.js"
     },
     "dependencies": {
         "@reduxjs/toolkit": "^1.6.1",
+        "@types/nearley": "^2.11.2",
         "dexie": "^3.2.2",
         "dexie-react-hooks": "^1.1.1",
         "formik": "^2.2.9",
+        "nearley": "^2.20.1",
         "next": "latest",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",

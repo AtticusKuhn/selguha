@@ -1,22 +1,28 @@
 // Render Prop
 import React from 'react';
-import { Formik, Form, Field, ErrorMessage, FieldArray } from 'formik';
+import { Formik, Form, Field, ErrorMessage, FieldArray, ErrorMessageProps } from 'formik';
 import { db } from '../db';
 import Button from './Button';
+import { timeValid } from '../time/time';
 
 export interface FormikValues {
     todo: string,
     importance: number,
     categories: number[],
-    deadline?: string,
-    recurrences: { startTime: string, timeInterval: number }[],
+    time?: string,
+    // recurrences: { startTime: string, timeInterval: number }[],
 }
 export interface FormikPayload {
     todo: string,
     importance: number,
     categories: number[],
-    deadline?: Date,
-    recurrences: { startTime: Date, timeInterval: number }[],
+    time?: string,
+    // recurrences: { startTime: Date, timeInterval: number }[],
+
+}
+const Error: React.FC<ErrorMessageProps> = (props) => {
+    //@ts-ignore
+    return <ErrorMessage {...props} component={msg => (<div className="text-accent font-bold text-lg">{msg.children}</div>)} />
 
 }
 const CreateTodoForm = () => (
@@ -27,44 +33,38 @@ const CreateTodoForm = () => (
                 todo: "",
                 importance: 5,
                 categories: [],
-                deadline: undefined,
-                recurrences: [],
+                time: "",
+                // deadline: undefined,
+                // recurrences: [],
             }}
-            validate={values => {
-                return {}
+            validate={async (values) => {
+                return {
+                    time: timeValid(values.time) ? "" : "invalid time"
+                }
             }}
             onSubmit={async (values, { setSubmitting }) => {
-                await db.insertTodo({
-                    categories: values.categories,
-                    importance: values.importance,
-                    recurrences: values.recurrences.map(r => ({
-                        startTime: new Date(r.startTime),
-                        timeInterval: r.timeInterval
-                    })),
-                    todo: values.todo,
-                    deadline: values.deadline ? new Date(values.deadline) : undefined,
-                })
+                await db.insertTodo(values)
                 setSubmitting(false)
             }}
         >
-            {({ values, isSubmitting }) => (
+            {({ errors, values, isSubmitting }) => (
                 <Form className="justify-items-center	">
                     <div className="flex flex-col">
                         <label htmlFor="todo">Todo Name</label>
                         <Field name="todo" />
-                        <ErrorMessage name="todo" component="div" />
+                        <Error name="todo" />
                         <label htmlFor="importance">Level of Importance</label>
                         <Field name="importance" type="number" />
-                        <ErrorMessage name="importance" component="div" />
+                        <Error name="importance" />
                         <label htmlFor="categories">Categories</label>
                         <Field name="categories" />
-                        <ErrorMessage name="categories" component="div" />
-                        <label htmlFor="deadline">Deadline (optional)</label>
-                        <Field value={values.deadline ?? ""} name="deadline" type="date" />
-                        <ErrorMessage name="deadline" component="div" />
+                        <Error name="categories" />
+                        <label htmlFor="deadline">time (optional)</label>
+                        <Field name="time" />
+                        <Error name="time" />
                     </div>
 
-                    <FieldArray name="recurrences">
+                    {/* <FieldArray name="recurrences">
                         {arrayHelpers => (
                             <div className="flex flex-col">
                                 <Button
@@ -103,7 +103,7 @@ const CreateTodoForm = () => (
                                 })}
                             </div>
                         )}
-                    </FieldArray>
+                    </FieldArray> */}
                     <Button type="submit" disabled={isSubmitting}>
                         Submit
                     </Button>

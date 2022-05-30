@@ -6,7 +6,7 @@ const UntimedTodos: React.FC<{}> = () => {
     const todos = useLive(() => db.untimedTodos(), [])
     return <div>
 
-        {todos.map((t, i) => (<Todo key={i} todo={t} />))}
+        {todos.map((t, i) => (<Todo key={i} todoId={t.id} />))}
     </div>
 }
 export default UntimedTodos
