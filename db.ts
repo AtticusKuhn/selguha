@@ -97,6 +97,18 @@ export class TodoDB extends Dexie {
         return todos;
         // todos.filter
     }
+    async upcomingTodos(today: Date, limit: number): Promise<Todo[]> {
+        const todos = (await this
+            .todos
+            .where("time")
+            .notEqual("")
+            .toArray()).sort((a, b) => next(new Date(), parse(a.time)).getTime()
+                - next(new Date(), parse(b.time)).getTime()
+            )
+
+        return todos;
+        // todos.filter
+    }
 }
 const populate = async () => {
     //todo

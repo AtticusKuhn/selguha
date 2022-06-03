@@ -27,7 +27,7 @@ const Error: React.FC<ErrorMessageProps> = (props) => {
 }
 const CreateTodoForm = () => (
     <div className="w-7/12 mx-auto">
-        <h1 className="font-bold text-3xl p-lg text-center">Todo Form!</h1>
+        <h1 className="font-bold text-3xl p-lg text-center">Create New Todo</h1>
         <Formik<FormikValues>
             initialValues={{
                 todo: "",
@@ -39,8 +39,11 @@ const CreateTodoForm = () => (
             }}
             validate={async (values) => {
                 let errors: FormikErrors<FormikValues> = {}
-                if (!timeValid(values.time)) {
+                if (!timeValid(values.time) && values.time !== "") {
                     errors.time = "invalid time"
+                }
+                if (values.todo === "") {
+                    errors.todo = "todo name cannot be blank"
                 }
                 return errors;
             }}

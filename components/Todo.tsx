@@ -1,6 +1,7 @@
+import React from "react";
 import { db, Todo, useLive } from "../db";
 import { next, parse } from "../time/time";
-
+import Checkbox from "./checkbox"
 const TodoView: React.FC<{ todoId: number }> = ({ todoId }) => {
     const todo = useLive(() => db.todos.get(todoId), {
         categories: [],
@@ -12,11 +13,11 @@ const TodoView: React.FC<{ todoId: number }> = ({ todoId }) => {
 
     })
     return <div className="rounded bg-primary-200 p-tiny flex gap-5">
-        <input type="checkbox" />
+        <Checkbox />
         <div className="font-bold">{todo.name}</div>
         <div>{todo?.categories?.join(",")}</div>
         <div>{todo?.importance}</div>
-        <div>{todo.time ? next(new Date(), parse(todo.time)).toISOString() : 'no time'}</div>
+        <div>{todo.time ? next(new Date(), parse(todo.time)).toLocaleString("en-US") : 'no time'}</div>
 
     </div>
 }

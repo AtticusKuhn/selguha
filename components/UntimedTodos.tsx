@@ -5,7 +5,7 @@ import Todo from "./Todo"
 
 const UntimedTodos: React.FC<{}> = () => {
 
-    const todos = useLive(() => db.todos.toArray(), []);
+    const todos = useLive(() => db.untimedTodos(), []);
     return <div>
         <div>Untimed Todos</div>
         {todos.map((t, i) => (<Todo key={i} todoId={t.id} />))}
