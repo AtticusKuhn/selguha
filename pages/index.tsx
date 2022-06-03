@@ -16,6 +16,7 @@ const IndexPage: React.FC<{}> = () => {
             <TodaysTodos />
             <UpcomingTodos />
         </div>
+        <button onClick={() => db.delete()} className="bg-accent font-bold">Delete All</button>
 
     </div>
 }

@@ -7,14 +7,15 @@ type interval = {
     end: Date,
 }
 type timeString = time_predicate
-    | filter_predicate
-type filter_predicate = {
-    type: "filter-predicate",
-    filter: filter,
-    time_predicate: time_predicate,
-}
+// | filter_predicate
+// type filter_predicate = {
+//     type: "filter-predicate",
+//     filter: filter,
+//     time_predicate: time_predicate,
+// }
 type time_predicate = (start: Date) => Generator<interval, null, never>;
 type filter = (index: number) => boolean
+// type AST = 
 export function parse(code: string): timeString {
     try {
         const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
@@ -35,7 +36,8 @@ export function parse(code: string): timeString {
         return null;
     }
 }
-const next = (currentTime: Date, timeString: timeString): Date => {
-
+export const next = (currentTime: Date, timeString: timeString): Date => {
+    // debugger;
+    return timeString(currentTime).next().value.start;
 }
 export const timeValid = (timeString: string): boolean => parse(timeString) ? true : false;

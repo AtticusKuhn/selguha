@@ -1,9 +1,9 @@
 // Render Prop
 import React from 'react';
-import { Formik, Form, Field, ErrorMessage, FieldArray, ErrorMessageProps } from 'formik';
+import { Formik, Form, Field, ErrorMessage, FieldArray, ErrorMessageProps, FormikErrors } from 'formik';
 import { db } from '../db';
 import Button from './Button';
-import { timeValid } from '../time/time';
+import { next, parse, timeValid } from '../time/time';
 
 export interface FormikValues {
     todo: string,
@@ -38,13 +38,17 @@ const CreateTodoForm = () => (
                 // recurrences: [],
             }}
             validate={async (values) => {
-                return {
-                    time: timeValid(values.time) ? "" : "invalid time"
+                let errors: FormikErrors<FormikValues> = {}
+                if (!timeValid(values.time)) {
+                    errors.time = "invalid time"
                 }
+                return errors;
             }}
-            onSubmit={async (values, { setSubmitting }) => {
+            onSubmit={async (values, { setSubmitting, resetForm }) => {
+                console.log("submitting form")
                 await db.insertTodo(values)
                 setSubmitting(false)
+                resetForm();
             }}
         >
             {({ errors, values, isSubmitting }) => (
@@ -60,6 +64,7 @@ const CreateTodoForm = () => (
                         <Field name="categories" />
                         <Error name="categories" />
                         <label htmlFor="deadline">time (optional)</label>
+                        <pre>{timeValid(values.time) && next(new Date(), parse(values.time)).toISOString()}</pre>
                         <Field name="time" />
                         <Error name="time" />
                     </div>
@@ -104,10 +109,12 @@ const CreateTodoForm = () => (
                             </div>
                         )}
                     </FieldArray> */}
-                    <Button type="submit" disabled={isSubmitting}>
+                    <Button type="submit" disabled={isSubmitting} >
                         Submit
                     </Button>
                     <pre>{JSON.stringify(values, null, 2)}</pre>
+                    <pre>{JSON.stringify(errors, null, 2)}</pre>
+
                 </Form>
 
             )}

@@ -1,6 +1,8 @@
 import Dexie, { Table } from 'dexie';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { useEffect, useState } from 'react';
 import { FormikPayload, FormikValues } from './components/CreateTodoForm';
+import { next, parse } from './time/time';
 
 export type Todo = {
     id?: number,
@@ -54,8 +56,9 @@ export class TodoDB extends Dexie {
             completedReccurences: "todoId,time"
         });
     }
-    async insertTodo(todoPayload: FormikPayload): Promise<void> {
-        const todo = await this.todos.add({
+    async insertTodo(todoPayload: FormikPayload): Promise<number> {
+        console.log("inserting new todo")
+        return await this.todos.add({
             name: todoPayload.todo,
             importance: todoPayload.importance,
             completed: false,
@@ -85,6 +88,15 @@ export class TodoDB extends Dexie {
             //         .distinct()
             .toArray();
     }
+    async todaysTodos(today: Date): Promise<Todo[]> {
+        const todos = await this
+            .todos
+            .where("time")
+            .notEqual("")
+            .filter((todo) => next(today, parse(todo.time)).getTime() - today.getTime() < 1000 * 60 * 60 * 24).toArray()
+        return todos;
+        // todos.filter
+    }
 }
 const populate = async () => {
     //todo
@@ -96,12 +108,44 @@ db.on('populate', populate);
 export function resetDatabase() {
     //todo
 }
-export const useLive = <T>(func: () => (T | Promise<T>), defaultValue: T): T => {
-    return useLiveQuery(() => {
+export const _useLive = <T>(func: () => (T | Promise<T>), defaultValue: T): T => {
+    const [results, setResults] = useState<T>(defaultValue)
+    useEffect(() => {
+        setResults(useLiveQuery(() => {
+            try {
+                return func();
+            } catch {
+                return defaultValue
+            }
+        }) || defaultValue)
+    }, [useLiveQuery(() => {
         try {
             return func();
         } catch {
             return defaultValue
         }
-    }) || defaultValue
+    }) || defaultValue])
+    return results;
+    // return useLiveQuery(() => {
+    //     try {
+    //         return func();
+    //     } catch {
+    //         return defaultValue
+    //     }
+    // }) || defaultValue
+}
+export function useLive<T>(func: () => T | Promise<T>, defaultValue: T) {
+    const [results, setResults] = useState<T>(defaultValue);
+    const e = useLiveQuery(() => {
+        try {
+            return func()
+        } catch {
+            return defaultValue
+        }
+    }) || defaultValue;
+    useEffect(() => {
+        setResults(e)
+    }, [e]);
+
+    return results;
 }

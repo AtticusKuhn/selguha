@@ -1,4 +1,4 @@
 const UpcomingTodos: React.FC<{}> = () => {
-    return <div>todo</div>
+    return <div>Upcoming Todos</div>
 }
 export default UpcomingTodos
