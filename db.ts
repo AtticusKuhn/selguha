@@ -154,7 +154,7 @@ export const _useLive = <T>(func: () => (T | Promise<T>), defaultValue: T): T =>
     //     }
     // }) || defaultValue
 }
-export function useLive<T>(func: () => T | Promise<T>, defaultValue: T) {
+export function useLive<T>(func: () => T | Promise<T>, defaultValue: T, deps?: any[]) {
     const [results, setResults] = useState<T>(defaultValue);
     const e = useLiveQuery(() => {
         try {
@@ -162,7 +162,7 @@ export function useLive<T>(func: () => T | Promise<T>, defaultValue: T) {
         } catch {
             return defaultValue
         }
-    }) || defaultValue;
+    }, deps) || defaultValue;
     useEffect(() => {
         setResults(e)
     }, [e, results]);

@@ -9,13 +9,19 @@ export type AppDispatch = typeof store.dispatch
 export const useDisp = () => useDispatch<AppDispatch>()
 export const useSel: TypedUseSelectorHook<RootState> = useSelector
 
+export type column = "number" | "name" | "done" | "categories" | "importance" | "time"
+type sort = "ascending" | "descending"
 export type InitialState = {
     count: number,
     default: boolean,
+    columnSort: column,
+    sort: sort,
 }
 const initialState: InitialState = {
     count: 1,
     default: true,
+    columnSort: "number",
+    sort: 'ascending'
 }
 
 export const slice = createSlice({
@@ -32,10 +38,22 @@ export const slice = createSlice({
             }
             state.default = false;
         },
+        clickHeader: (state, column: PayloadAction<column>) => {
+            if (state.columnSort === column.payload) {
+                if (state.sort === "ascending") {
+                    state.sort = "descending"
+                } else {
+                    state.sort = "ascending"
+                }
+            } else {
+                state.columnSort = column.payload;
+            }
+
+        }
     }
 })
 
-export const { inc, setState } = slice.actions
+export const { inc, setState, clickHeader } = slice.actions
 
 export default slice.reducer
 

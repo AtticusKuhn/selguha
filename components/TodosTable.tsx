@@ -1,41 +1,82 @@
 // import next from "next"
 import { parse, next } from "../time/time"
 import React from "react"
-import { useLive, db } from "../db"
+import { useLive, db, Todo } from "../db"
 import CheckBox from "./checkbox"
+import { stringToColor } from "../utils"
+import { clickHeader, column, useDisp, useSel } from "../redux"
+import { useSelector } from "react-redux"
 
-const TodosTable: React.FC<{ todos: number[] }> = ({ todos }) => {
+const CategoryChip: React.FC<{ category: number }> = ({ category }) => {
+    const cat = useLive(() => db.categories.get(category), { name: "loading...", id: 12 })
+    return <div
+        className="rounded inline-block"
+        style={{ backgroundColor: stringToColor(cat.name) }}
+    >
+        {cat.name}
+    </div>
+}
+const TH: React.FC<{ column: column, text: string }> = ({ column, text }) => {
+    const disp = useDisp()
+    const click = (header: column) => () => disp(clickHeader(header))
+    const columnSort = useSel(x => x.columnSort)
+    const sort = useSel(x => x.sort)
+
+    return (
+        <th className={(columnSort === column && (sort === "ascending" ? `bg-secondary` : "bg-accent")) + " cursor-pointer rounded"} onClick={click(column)}>{text}</th>
+
+    )
+}
+const TodosTable: React.FC<{ todos: Todo[] }> = ({ todos }) => {
+    const columnSort = useSel(x => x.columnSort)
+    const sort = useSel(x => x.sort)
+    // debugger;
+    const sortedTodos = todos.sort((a, b) =>
+        columnSort === "categories" ? a.categories.join("").localeCompare(b.categories.join(""))
+            : columnSort === "done" ? Number(a.completed) - Number(b.completed)
+                : columnSort === "importance" ? a.importance - b.importance
+                    : columnSort === "name" ? a.name.localeCompare(b.name)
+                        : (a.time !== "" && b.time !== "" ?
+                            next(new Date(), parse(a.time)).getTime() - next(new Date(), parse(b.time)).getTime()
+                            : 1
+                        )
+    )
+    const reveresed = sort === "descending" ? sortedTodos.reverse() : sortedTodos
+
+
     return <div>
         <table className="w-full mx-auto text-sm text-left text-primary-500 dark:text-primary-400" >
             <thead className="w-full text-sm text-left text-primary-500 dark:text-primary-400">
                 <tr>
-                    <th>Number</th>
-                    <th>Name</th>
-                    <th>Done?</th>
-                    <th>Importance</th>
-                    <th>Time</th>
+                    <TH column="number" text="Number" />
+                    <TH column="name" text="Name" />
+                    <TH column="done" text="Done?" />
+                    <TH column="categories" text="Categories" />
+                    <TH column="importance" text="Importance" />
+                    <TH column="time" text="Time" />
                 </tr>
             </thead>
             <tbody>
-                {todos.map((todo, index) => <Row key={index} id={todo} index={index} />)}
+                {reveresed.map((todo, index) => <Row key={todo.id} todo={todo} index={index} />)}
             </tbody>
         </table>
     </div>
 }
-const Row: React.FC<{ id: number, index: number }> = ({ id, index }) => {
-    const todo = useLive(() => db.todos.get(id), {
-        categories: [],
-        completed: false,
-        importance: 1,
-        name: "Loading...",
-        subTodos: [],
-        time: "",
+const Row: React.FC<{ todo: Todo, index: number }> = ({ todo, index }) => {
+    // const todo = useLive(() => db.todos.get(id), {
+    //     categories: [],
+    //     completed: false,
+    //     importance: 1,
+    //     name: "Loading...",
+    //     subTodos: [],
+    //     time: "",
 
-    })
+    // })
     return <tr key={index} className="even:bg-primary-100 odd:bg-primary-200 rounded">
         <td>{index + 1}</td>
         <td>{todo.name}</td>
         <td><CheckBox /></td>
+        <td>{todo.categories.map(c => <CategoryChip category={c} key={c} />)}</td>
         <td>{todo.importance}</td>
         <td>{todo.time ? next(new Date(), parse(todo.time)).toLocaleString("en-US") : 'no time'}</td>
 

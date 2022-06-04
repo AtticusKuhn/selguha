@@ -8,7 +8,7 @@ const UpcomingTodos: React.FC<{}> = () => {
     const todos = useLive(() => db.upcomingTodos(new Date(), 1), []);
     return <div>
         <Header>Upcoming Todos</Header>
-        <TodosTable todos={todos.map(t => t.id)} />
+        <TodosTable todos={todos} />
         {/* {todos.map((t, i) => (<Todo key={i} todoId={t.id} />))} */}
     </div>
 }

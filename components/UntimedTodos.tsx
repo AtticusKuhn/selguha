@@ -10,7 +10,7 @@ const UntimedTodos: React.FC<{}> = () => {
     const todos = useLive(() => db.untimedTodos(), []);
     return <div>
         <Header>Untimed Todos</Header>
-        <TodosTable todos={todos.map(t => t.id)} />
+        <TodosTable todos={todos} />
     </div>
 }
 export default UntimedTodos
