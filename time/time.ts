@@ -1,4 +1,3 @@
-import { time } from "console";
 import nearley from "nearley"
 
 const grammar = require("../grammar.js")

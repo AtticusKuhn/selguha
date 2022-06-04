@@ -90,7 +90,7 @@ stime_predicate -> double_exact_date (_ "at":? _:? time):? {%d=>{
 time_period -> ("a" | digit)  _ epoch "s":?
 epoch -> "second" | "minute" | "week" | "month" | "year"
 digit -> ("0" |  "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9") {%id%}
-digits -> digit:+ {%d=>parseInt(d.join(""))%}
+digits -> digit:+ {%d=>parseInt(d[0].join(""))%}
 ordinal -> digits ("st" | "th" | "rd") {%d=>({
     type:"ordinal",
     value:d,
@@ -123,7 +123,9 @@ exact_date -> slash_date {%id%}
  | day {%id%}
  | month {%id%}
 slash_date -> digits "/" digits "/" digits{%d=>{
+    console.log("slash date, d=",d)
     return function*(start){
+        console.log("slash date", d.join(""))
     const d1 = new Date(d.join(""))
     d1.setHours(0)
     const d2 = new Date(d.join(""))

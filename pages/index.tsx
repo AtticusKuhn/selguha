@@ -1,5 +1,6 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import React, { FormEventHandler } from "react"
+import CreateCategory from "../components/CreateCategory";
 import CreateTodoForm from "../components/CreateTodoForm"
 import TodaysTodos from "../components/TodaysTodos";
 import UntimedTodos from "../components/UntimedTodos";
@@ -13,10 +14,10 @@ const IndexPage: React.FC<{}> = () => {
         <div className="grid grid-cols-2	">
             <CreateTodoForm />
             <UntimedTodos />
-            <TodaysTodos />
+            <CreateCategory />
             <UpcomingTodos />
         </div>
-        <button onClick={() => db.delete()} className="bg-accent font-bold">Delete All</button>
+        <button onClick={() => db.delete()} className="bg-accent font-bold p-lg m-auto">Delete All</button>
 
     </div>
 }

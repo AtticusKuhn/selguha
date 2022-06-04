@@ -16,12 +16,13 @@ export type Todo = {
     // startTime?: Date,
     // timeInterval?: number,
 }
+export type Category = {
+    id?: number,
+    name: string,
+}
 export class TodoDB extends Dexie {
     todos!: Table<Todo, number>;
-    categories!: Table<{
-        id?: number,
-        name: string,
-    }, number>
+    categories!: Table<Category, number>
     // subTodo!: Table<{
     //     parentId: number,
     //     childId: number,
@@ -102,12 +103,19 @@ export class TodoDB extends Dexie {
             .todos
             .where("time")
             .notEqual("")
+            .filter((todo) => {
+                console.log("next(today, parse(todo.time)).getTime(),", next(today, parse(todo.time)).getTime(), "today.getTime()", today.getTime())
+                return next(today, parse(todo.time)).getTime() >= today.getTime()
+            })
             .toArray()).sort((a, b) => next(new Date(), parse(a.time)).getTime()
                 - next(new Date(), parse(b.time)).getTime()
             )
 
         return todos;
         // todos.filter
+    }
+    async createCategory(category: Category): Promise<number> {
+        return this.categories.add(category)
     }
 }
 const populate = async () => {
@@ -157,7 +165,7 @@ export function useLive<T>(func: () => T | Promise<T>, defaultValue: T) {
     }) || defaultValue;
     useEffect(() => {
         setResults(e)
-    }, [e]);
+    }, [e, results]);
 
     return results;
 }

@@ -142,7 +142,7 @@ var grammar = {
     {"name": "digit", "symbols": ["digit$subexpression$1"], "postprocess": id},
     {"name": "digits$ebnf$1", "symbols": ["digit"]},
     {"name": "digits$ebnf$1", "symbols": ["digits$ebnf$1", "digit"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "digits", "symbols": ["digits$ebnf$1"], "postprocess": d=>parseInt(d.join(""))},
+    {"name": "digits", "symbols": ["digits$ebnf$1"], "postprocess": d=>parseInt(d[0].join(""))},
     {"name": "ordinal$subexpression$1$string$1", "symbols": [{"literal":"s"}, {"literal":"t"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "ordinal$subexpression$1", "symbols": ["ordinal$subexpression$1$string$1"]},
     {"name": "ordinal$subexpression$1$string$2", "symbols": [{"literal":"t"}, {"literal":"h"}], "postprocess": function joiner(d) {return d.join('');}},
@@ -188,7 +188,9 @@ var grammar = {
     {"name": "exact_date", "symbols": ["day"], "postprocess": id},
     {"name": "exact_date", "symbols": ["month"], "postprocess": id},
     {"name": "slash_date", "symbols": ["digits", {"literal":"/"}, "digits", {"literal":"/"}, "digits"], "postprocess": d=>{
+            console.log("slash date, d=",d)
             return function*(start){
+                console.log("slash date", d.join(""))
             const d1 = new Date(d.join(""))
             d1.setHours(0)
             const d2 = new Date(d.join(""))

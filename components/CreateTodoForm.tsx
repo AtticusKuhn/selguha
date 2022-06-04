@@ -4,12 +4,14 @@ import { Formik, Form, Field, ErrorMessage, FieldArray, ErrorMessageProps, Formi
 import { db } from '../db';
 import Button from './Button';
 import { next, parse, timeValid } from '../time/time';
-
+import Header from './Header';
+import MyField from "./Field"
 export interface FormikValues {
     todo: string,
     importance: number,
     categories: number[],
     time?: string,
+    categoryString: string,
     // recurrences: { startTime: string, timeInterval: number }[],
 }
 export interface FormikPayload {
@@ -20,110 +22,76 @@ export interface FormikPayload {
     // recurrences: { startTime: Date, timeInterval: number }[],
 
 }
-const Error: React.FC<ErrorMessageProps> = (props) => {
+export const Error: React.FC<ErrorMessageProps> = (props) => {
     //@ts-ignore
     return <ErrorMessage {...props} component={msg => (<div className="text-accent font-bold text-lg">{msg.children}</div>)} />
 
 }
-const CreateTodoForm = () => (
-    <div className="w-7/12 mx-auto">
-        <h1 className="font-bold text-3xl p-lg text-center">Create New Todo</h1>
-        <Formik<FormikValues>
-            initialValues={{
-                todo: "",
-                importance: 5,
-                categories: [],
-                time: "",
-                // deadline: undefined,
-                // recurrences: [],
-            }}
-            validate={async (values) => {
-                let errors: FormikErrors<FormikValues> = {}
-                if (!timeValid(values.time) && values.time !== "") {
-                    errors.time = "invalid time"
-                }
-                if (values.todo === "") {
-                    errors.todo = "todo name cannot be blank"
-                }
-                return errors;
-            }}
-            onSubmit={async (values, { setSubmitting, resetForm }) => {
-                console.log("submitting form")
-                await db.insertTodo(values)
-                setSubmitting(false)
-                resetForm();
-            }}
-        >
-            {({ errors, values, isSubmitting }) => (
-                <Form className="justify-items-center	">
-                    <div className="flex flex-col">
-                        <label htmlFor="todo">Todo Name</label>
-                        <Field name="todo" />
-                        <Error name="todo" />
-                        <label htmlFor="importance">Level of Importance</label>
-                        <Field name="importance" type="number" />
-                        <Error name="importance" />
-                        <label htmlFor="categories">Categories</label>
-                        <Field name="categories" />
-                        <Error name="categories" />
-                        <label htmlFor="deadline">time (optional)</label>
-                        <pre>{timeValid(values.time) && next(new Date(), parse(values.time)).toISOString()}</pre>
-                        <Field name="time" />
-                        <Error name="time" />
-                    </div>
+const CreateTodoForm = () => {
+    // const cats = useLive(()=>db.categories.where("name").startsWith(values.categoryString).toArray(), [])
+    return (
+        <div className="w-7/12 mx-auto">
+            <Header>Create New Todo</Header>
+            <Formik<FormikValues>
+                initialValues={{
+                    todo: "",
+                    importance: 5,
+                    categories: [],
+                    time: "",
+                    categoryString: ""
+                    // deadline: undefined,
+                    // recurrences: [],
+                }}
+                validate={async (values) => {
+                    let errors: FormikErrors<FormikValues> = {}
+                    if (!timeValid(values.time) && values.time !== "") {
+                        errors.time = "invalid time"
+                    }
+                    if (values.todo === "") {
+                        errors.todo = "todo name cannot be blank"
+                    }
+                    return errors;
+                }}
+                onSubmit={async (values, { setSubmitting, resetForm }) => {
+                    console.log("submitting form")
+                    await db.insertTodo(values)
+                    setSubmitting(false)
+                    resetForm();
+                }}
+            >
+                {({ errors, values, isSubmitting }) => (
+                    <Form className="justify-items-center	">
+                        <div className="flex flex-col">
+                            <label htmlFor="todo">Todo Name</label>
+                            <MyField name="todo" />
+                            <Error name="todo" />
+                            <label htmlFor="importance">Level of Importance</label>
+                            <MyField name="importance" type="number" />
+                            <Error name="importance" />
+                            <label htmlFor="categories">Categories</label>
+                            {.map((c) => <div>{c.name}</div>)}
+                            <MyField name="categoryString" />
+                            <Error name="categoryString" />
+                            <label htmlFor="deadline">time (optional)</label>
+                            <pre>{timeValid(values.time) && next(new Date(), parse(values.time)).toISOString()}</pre>
+                            <MyField name="time" />
+                            <Error name="time" />
+                        </div>
 
-                    {/* <FieldArray name="recurrences">
-                        {arrayHelpers => (
-                            <div className="flex flex-col">
-                                <Button
-                                    className="w-7/12"
-                                    onClick={() =>
-                                        arrayHelpers.push({
-                                            startTime: new Date().toISOString().slice(0, 10),
-                                            timeInterval: 1e6,
-                                        })
-                                    }
-                                    type='button'
-                                >
-                                    (+) add new recurrence
-                                </Button>
-                                {values.recurrences.map((recurrence, index) => {
-                                    return (
-                                        <div key={index}>
-                                            <Field
 
-                                                value={recurrence.startTime}
-                                                placeholder="recurrence start time"
-                                                type="date"
-                                                name={`recurrences.${index}.startTime`}
-                                            />
+                        <Button type="submit" disabled={isSubmitting} >
+                            Submit
+                        </Button>
+                        <pre>{JSON.stringify(values, null, 2)}</pre>
+                        <pre>{JSON.stringify(errors, null, 2)}</pre>
 
-                                            <Field
-                                                placeholder="time interval"
-                                                name={`recurrences.${index}.timeInterval`}
-                                            />
+                    </Form>
 
-                                            <Button className="bg-accent" type='button' onClick={() => arrayHelpers.remove(index)}>
-                                                (x) delete recurrence
-                                            </Button>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        )}
-                    </FieldArray> */}
-                    <Button type="submit" disabled={isSubmitting} >
-                        Submit
-                    </Button>
-                    <pre>{JSON.stringify(values, null, 2)}</pre>
-                    <pre>{JSON.stringify(errors, null, 2)}</pre>
+                )}
+            </Formik>
 
-                </Form>
-
-            )}
-        </Formik>
-
-    </div >
-);
+        </div >
+    )
+};
 
 export default CreateTodoForm;
