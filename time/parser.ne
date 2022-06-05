@@ -10,16 +10,16 @@ const dayParser  =(d)=>{
         let iter = 0
         while(true){
             iter++
-
-            start.setHours(0,0,0,0);
-            start.setDate(start.getDate()  + iter*7+
+            const s = new Date()
+            s.setHours(0,0,0,0);
+            s.setDate(start.getDate()  + iter*7+
                 (dayOfWeek + 7 - start.getDay()) % 7);
             const end = new Date();
             end.setHours(23)
             end.setDate(start.getDate()  + iter*7+
                 (dayOfWeek + 7 - start.getDay()) % 7);
             yield {
-                start,
+                start:s,
                 end,
             };
         }
@@ -35,11 +35,11 @@ const monthParser  =(d)=>{
         let iter = 0
         while(true){
             iter++
-            const d1 = new Date(start.getFullYear(), month, 1);
-            const d2 = new Date(start.getFullYear(), month, 30);
+            const d1 = new Date(start.getFullYear()+iter, month, 1);
+            const d2 = new Date(start.getFullYear()+iter, month, 30);
 
             yield {
-                start:d,
+                start:d1,
                 end:d2,
             };
         }
@@ -82,10 +82,28 @@ time_predicate  ->  stime_predicate (_ "and" _ time_predicate):? {%d=>{
     return d[0]
 }%}
 stime_predicate -> double_exact_date (_ "at":? _:? time):? {%d=>{
-    if(d[4]){
-        d[0].setHours(...d[4].start)
+    console.log("stime_predicate", d)
+    if(!d[1]){
+        return d[0]
     }
-    return d[0]
+    return function*(start){
+        const gen = d[0](start);
+        while(true){
+            const next = gen.next()
+            const value = next.value;
+            const done = next.done;
+            if(done){
+                return null;
+            }
+            const start = value.start;
+            const end  = value.end;
+            start.setHours(...d[1][3].start)
+            end.setHours(...d[1][3].start)
+            return {
+                start, end
+            }
+        } 
+    }
 }%}
 time_period -> ("a" | digit)  _ epoch "s":?
 epoch -> "second" | "minute" | "week" | "month" | "year"
@@ -96,24 +114,32 @@ ordinal -> digits ("st" | "th" | "rd") {%d=>({
     value:d,
 })%}
 double_exact_date -> exact_date (_ ("of" | "in") _ exact_date):? {%d=>{
+    console.log("double_exact_date", d)
     const g1 = d[0]
-    const g2 = d[5]
-    if(!g2) return g1
+    const g21 = d[1]
+    if(!g21) return g1
+    const g2 = g21[3]
     return  function*(start){
         const gen1 = g1(start);
         const gen2 = g2(start);
         let iter = 0
-        while(gen1.next() && gen2.next()){
+        let v1 = gen1.next()
+        let v2 = gen2.next()
+        // debugger
+        while(!v1.done || !v2.done){
             iter++
-            if(iter > 10){
+            if(iter > 100){
                 return null;
             }
-            if(gen1.value.end.getTime()  > gen2.value.start.getTime()){
+            debugger;
+            if(v1.value.end.getTime()  > v2.value.start.getTime()){
                 yield {
-                    start:gen2.value.start,
-                    end: gen1.value.end
+                    start:v2.value.start,
+                    end: v1.value.end
                 };
             }
+            v1 = gen1.next()
+            v2 = gen2.next()
         }
     }
 }%}

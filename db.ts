@@ -117,6 +117,20 @@ export class TodoDB extends Dexie {
     async createCategory(category: Category): Promise<number> {
         return this.categories.add(category)
     }
+    async checkTodo(todoId: number, check: boolean, time?: Date): Promise<void> {
+        // const todo = await this.todos.get(todoId)
+        console.log("checking")
+        if (!time) {
+            await this.todos.update(todoId, {
+                "completed": check
+            })
+        } else {
+            await this.completedReccurences.add({
+                todoId,
+                time,
+            })
+        }
+    }
 }
 const populate = async () => {
     //todo

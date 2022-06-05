@@ -78,7 +78,7 @@ const FormElement: React.FC<FormikProps<FormikValues>> = ({ errors, values, isSu
             </div>
             <Error name="categoryString" />
             <label htmlFor="deadline">time (optional)</label>
-            <pre>{timeValid(values.time) && next(new Date(), parse(values.time)).toISOString()}</pre>
+            <div>{timeValid(values.time) && `Time is ${next(new Date(), parse(values.time)).toLocaleString("en-US")}`}</div>
             <MyField name="time" />
             <Error name="time" />
         </div>

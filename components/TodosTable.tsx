@@ -23,7 +23,7 @@ const TH: React.FC<{ column: column, text: string }> = ({ column, text }) => {
     const sort = useSel(x => x.sort)
 
     return (
-        <th className={(columnSort === column && (sort === "ascending" ? `bg-secondary` : "bg-accent")) + " cursor-pointer rounded"} onClick={click(column)}>{text}</th>
+        <th className={(columnSort === column && (sort === "ascending" ? `bg-secondary` : "bg-accent")) + " cursor-pointer rounded text-center"} onClick={click(column)}>{text}</th>
 
     )
 }
@@ -72,10 +72,18 @@ const Row: React.FC<{ todo: Todo, index: number }> = ({ todo, index }) => {
     //     time: "",
 
     // })
+    const click: React.ChangeEventHandler<HTMLInputElement> = async (e) => {
+        const checked = e.target.checked;
+        if (todo.time === "") {
+            await db.checkTodo(todo.id, checked)
+        } else {
+            await db.checkTodo(todo.id, checked, next(new Date(), parse(todo.time)))
+        }
+    }
     return <tr key={index} className="even:bg-primary-100 odd:bg-primary-200 rounded">
         <td>{index + 1}</td>
         <td>{todo.name}</td>
-        <td><CheckBox /></td>
+        <td><CheckBox onChange={click} defaultChecked={todo.completed} /></td>
         <td>{todo.categories.map(c => <CategoryChip category={c} key={c} />)}</td>
         <td>{todo.importance}</td>
         <td>{todo.time ? next(new Date(), parse(todo.time)).toLocaleString("en-US") : 'no time'}</td>

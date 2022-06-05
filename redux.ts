@@ -35,6 +35,8 @@ export const slice = createSlice({
             console.log("setState")
             if (newState.payload) {
                 state.count = newState.payload.count
+                state.columnSort = newState.payload.columnSort
+                state.sort = newState.payload.sort
             }
             state.default = false;
         },
