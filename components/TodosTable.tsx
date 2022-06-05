@@ -1,6 +1,6 @@
 // import next from "next"
 import { parse, next } from "../time/time"
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { useLive, db, Todo } from "../db"
 import CheckBox from "./checkbox"
 import { stringToColor } from "../utils"
@@ -63,15 +63,8 @@ const TodosTable: React.FC<{ todos: Todo[] }> = ({ todos }) => {
     </div>
 }
 const Row: React.FC<{ todo: Todo, index: number }> = ({ todo, index }) => {
-    // const todo = useLive(() => db.todos.get(id), {
-    //     categories: [],
-    //     completed: false,
-    //     importance: 1,
-    //     name: "Loading...",
-    //     subTodos: [],
-    //     time: "",
-
-    // })
+    const [subTodos, setSubTodos] = useState(todo.subTodos)
+    useEffect(() => { setSubTodos(todo.subTodos) }, [todo.subTodos])
     const click: React.ChangeEventHandler<HTMLInputElement> = async (e) => {
         const checked = e.target.checked;
         if (todo.time === "") {
@@ -80,14 +73,44 @@ const Row: React.FC<{ todo: Todo, index: number }> = ({ todo, index }) => {
             await db.checkTodo(todo.id, checked, next(new Date(), parse(todo.time)))
         }
     }
-    return <tr key={index} className="even:bg-primary-100 odd:bg-primary-200 rounded">
+    const defaultChecked: boolean = todo.time !== ""
+        ? useLive(() => db.completedReccurences.where({
+            "todoId": todo.id,
+            "time": next(new Date(), parse(todo.time)),
+        }).toArray(), [], [todo]).length > 0 : todo.completed;
+    const dragStart: React.DragEventHandler<HTMLTableRowElement> = (event) => {
+        event.dataTransfer.setData("todoId", todo.id.toString());
+    }
+    const dragOver: React.DragEventHandler<HTMLTableRowElement> = (event) => {
+        event.preventDefault();
+        const id = Number(event.dataTransfer.getData("todoId"))
+        if (id !== todo.id) {
+            setSubTodos([...subTodos.filter(st => st !== id), id])
+        }
+    }
+    const dragLeave: React.DragEventHandler<HTMLTableRowElement> = (event) => {
+        const id = Number(event.dataTransfer.getData("todoId"))
+        setSubTodos(subTodos.filter(st => st !== id))
+    }
+    const drop: React.DragEventHandler<HTMLTableRowElement> = (event) => {
+
+    }
+    return <tr
+        key={index}
+        className="even:bg-primary-100 odd:bg-primary-200 rounded"
+        draggable="true"
+        onDragStart={dragStart}
+        onDragOver={dragOver}
+        onDragLeave={dragLeave}
+        onDrop={drop}
+    >
         <td>{index + 1}</td>
         <td>{todo.name}</td>
-        <td><CheckBox onChange={click} defaultChecked={todo.completed} /></td>
+        <td><CheckBox onChange={click} defaultChecked={defaultChecked} /></td>
         <td>{todo.categories.map(c => <CategoryChip category={c} key={c} />)}</td>
         <td>{todo.importance}</td>
         <td>{todo.time ? next(new Date(), parse(todo.time)).toLocaleString("en-US") : 'no time'}</td>
-
+        <div>{subTodos.join(",")}</div>
     </tr>
 }
 export default TodosTable

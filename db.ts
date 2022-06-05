@@ -125,10 +125,14 @@ export class TodoDB extends Dexie {
                 "completed": check
             })
         } else {
-            await this.completedReccurences.add({
-                todoId,
-                time,
-            })
+            if (check) {
+                await this.completedReccurences.add({
+                    todoId,
+                    time,
+                })
+            } else {
+                await this.completedReccurences.delete(todoId);
+            }
         }
     }
 }
