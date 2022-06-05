@@ -60,7 +60,7 @@ const FormElement: React.FC<FormikProps<FormikValues>> = ({ errors, values, isSu
         .limit(5)
         .filter(c => !values.categories.includes(c.id))
         .toArray(), [], [values.categoryString, values.categories])
-    return <Form className="justify-items-center	">
+    return <Form className="justify-items-center  flex flex-col items-center justify-center .">
         <div className="flex flex-col">
             <label htmlFor="todo">Todo Name</label>
             <MyField name="todo" />
@@ -83,12 +83,13 @@ const FormElement: React.FC<FormikProps<FormikValues>> = ({ errors, values, isSu
             <Error name="time" />
         </div>
 
-
-        <Button type="submit" disabled={isSubmitting} >
-            Submit
-        </Button>
-        <pre>{JSON.stringify(values, null, 2)}</pre>
-        <pre>{JSON.stringify(errors, null, 2)}</pre>
+        <div>
+            <Button type="submit" className="mx-auto m-lg " disabled={isSubmitting} >
+                Submit
+            </Button>
+        </div>
+        {/* <pre>{JSON.stringify(values, null, 2)}</pre> */}
+        {/* <pre>{JSON.stringify(errors, null, 2)}</pre> */}
 
     </Form>
 }

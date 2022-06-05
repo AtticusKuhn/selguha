@@ -34,18 +34,20 @@ const CreateCategory: React.FC<{}> = () => {
             }}
         >
             {({ errors, values, isSubmitting }) => (
-                <Form className="justify-items-center	">
+                <Form className="justify-items-center items-center	 flex flex-col justify-center .	">
                     <div className="flex flex-col">
                         <label htmlFor="name">Category Name</label>
                         <MyField name="name" />
                         <Error name="name" />
 
                     </div>
-                    <Button type="submit" disabled={isSubmitting} >
-                        Submit
-                    </Button>
-                    <pre>{JSON.stringify(values, null, 2)}</pre>
-                    <pre>{JSON.stringify(errors, null, 2)}</pre>
+                    <div>
+                        <Button type="submit" className=" m-lg" disabled={isSubmitting} >
+                            Submit
+                        </Button>
+                    </div>
+                    {/* <pre>{JSON.stringify(values, null, 2)}</pre> */}
+                    {/* <pre>{JSON.stringify(errors, null, 2)}</pre> */}
 
                 </Form>
 
