@@ -7,7 +7,7 @@ const TodaysTodos: React.FC<{}> = () => {
     const todos = useLive(() => db.todaysTodos(new Date()), [])
     return <div>
         <div>Todays Todos</div>
-        {todos.map((t, i) => (<Todo key={i} todoId={t.id} />))}
+        {todos.map((t, i) => (<Todo key={i} todo={t} />))}
     </div>
 }
 export default TodaysTodos

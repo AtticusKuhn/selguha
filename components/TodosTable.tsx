@@ -6,6 +6,7 @@ import CheckBox from "./checkbox"
 import { stringToColor } from "../utils"
 import { clickHeader, column, useDisp, useSel } from "../redux"
 import { useSelector } from "react-redux"
+import TodoView from "./Todo"
 
 const CategoryChip: React.FC<{ category: number }> = ({ category }) => {
     const cat = useLive(() => db.categories.get(category), { name: "loading...", id: 12 })
@@ -64,6 +65,7 @@ const TodosTable: React.FC<{ todos: Todo[] }> = ({ todos }) => {
 }
 const Row: React.FC<{ todo: Todo, index: number }> = ({ todo, index }) => {
     const [subTodos, setSubTodos] = useState(todo.subTodos)
+    const liveSubTodos = useLive(() => db.todos.bulkGet(subTodos), [], [subTodos])
     useEffect(() => { setSubTodos(todo.subTodos) }, [todo.subTodos])
     const click: React.ChangeEventHandler<HTMLInputElement> = async (e) => {
         const checked = e.target.checked;
@@ -80,10 +82,15 @@ const Row: React.FC<{ todo: Todo, index: number }> = ({ todo, index }) => {
         }).toArray(), [], [todo]).length > 0 : todo.completed;
     const dragStart: React.DragEventHandler<HTMLTableRowElement> = (event) => {
         event.dataTransfer.setData("todoId", todo.id.toString());
+        event.dataTransfer.setData(todo.id.toString(), todo.id.toString());
+
     }
     const dragOver: React.DragEventHandler<HTMLTableRowElement> = (event) => {
         event.preventDefault();
-        const id = Number(event.dataTransfer.getData("todoId"))
+        // debugger;
+        console.log(`event.dataTransfer.getData("todoId")`, event.dataTransfer.getData("todoId"))
+        // const id = Number(event.dataTransfer.getData("todoId"))
+        const id = Number(event.dataTransfer.items[0].type);
         if (id !== todo.id) {
             setSubTodos([...subTodos.filter(st => st !== id), id])
         }
@@ -93,9 +100,12 @@ const Row: React.FC<{ todo: Todo, index: number }> = ({ todo, index }) => {
         setSubTodos(subTodos.filter(st => st !== id))
     }
     const drop: React.DragEventHandler<HTMLTableRowElement> = (event) => {
-
+        const id = Number(event.dataTransfer.getData("todoId"))
+        if (id !== todo.id) {
+            setSubTodos([...subTodos.filter(st => st !== id), id])
+        }
     }
-    return <tr
+    return <><tr
         key={index}
         className="even:bg-primary-100 odd:bg-primary-200 rounded"
         draggable="true"
@@ -110,7 +120,22 @@ const Row: React.FC<{ todo: Todo, index: number }> = ({ todo, index }) => {
         <td>{todo.categories.map(c => <CategoryChip category={c} key={c} />)}</td>
         <td>{todo.importance}</td>
         <td>{todo.time ? next(new Date(), parse(todo.time)).toLocaleString("en-US") : 'no time'}</td>
-        <div>{subTodos.join(",")}</div>
+
     </tr>
+        <tr className="w-full">
+            <td></td>
+            <td>
+                {/* <br /> */}
+                <div className="">
+                    {/* {JSON.stringify(liveSubTodos)} */}
+                    {liveSubTodos.map((lst, index) => <TodoView
+                        // index={index}
+                        todo={lst}
+                        key={lst.id}
+                    />)}
+                </div>
+            </td>
+        </tr>
+    </>
 }
 export default TodosTable
