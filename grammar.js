@@ -211,7 +211,7 @@ var grammar = {
     {"name": "exact_date", "symbols": ["slash_date"], "postprocess": id},
     {"name": "exact_date", "symbols": ["dash_date"], "postprocess": id},
     {"name": "exact_date", "symbols": ["date"], "postprocess": id},
-    {"name": "exact_date", "symbols": ["day"], "postprocess": id},
+    {"name": "exact_date", "symbols": ["days"], "postprocess": id},
     {"name": "exact_date", "symbols": ["month"], "postprocess": id},
     {"name": "slash_date", "symbols": ["digits", {"literal":"/"}, "digits", {"literal":"/"}, "digits"], "postprocess": d=>{
             console.log("slash date, d=",d)
@@ -285,6 +285,9 @@ var grammar = {
     {"name": "month", "symbols": ["month$string$22"], "postprocess": monthParser},
     {"name": "month$string$23", "symbols": [{"literal":"d"}, {"literal":"e"}, {"literal":"c"}, {"literal":"e"}, {"literal":"m"}, {"literal":"b"}, {"literal":"e"}, {"literal":"r"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "month", "symbols": ["month$string$23"], "postprocess": monthParser},
+    {"name": "days$ebnf$1", "symbols": [{"literal":"s"}], "postprocess": id},
+    {"name": "days$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "days", "symbols": ["day", "days$ebnf$1"], "postprocess": d=>d[0]},
     {"name": "day$string$1", "symbols": [{"literal":"m"}, {"literal":"o"}, {"literal":"n"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "day", "symbols": ["day$string$1"], "postprocess": dayParser},
     {"name": "day$string$2", "symbols": [{"literal":"t"}, {"literal":"u"}, {"literal":"e"}, {"literal":"s"}], "postprocess": function joiner(d) {return d.join('');}},

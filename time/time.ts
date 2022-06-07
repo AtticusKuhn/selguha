@@ -39,4 +39,4 @@ export const next = (currentTime: Date, timeString: timeString): Date => {
     // debugger;
     return timeString(currentTime).next().value.start;
 }
-export const timeValid = (timeString: string): boolean => parse(timeString) ? true : false;
+export const timeValid = (timeString: string): boolean => parse(timeString) && !parse(timeString)(new Date()).next().done ? true : false;

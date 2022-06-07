@@ -96,13 +96,16 @@ const Row: React.FC<{ todo: Todo, index: number }> = ({ todo, index }) => {
         }
     }
     const dragLeave: React.DragEventHandler<HTMLTableRowElement> = (event) => {
-        const id = Number(event.dataTransfer.getData("todoId"))
+        // const id = Number(event.dataTransfer.getData("todoId"))
+        const id = Number(event.dataTransfer.items[0].type);
+
         setSubTodos(subTodos.filter(st => st !== id))
     }
     const drop: React.DragEventHandler<HTMLTableRowElement> = (event) => {
         const id = Number(event.dataTransfer.getData("todoId"))
         if (id !== todo.id) {
             setSubTodos([...subTodos.filter(st => st !== id), id])
+            db.addSubTodo(todo.id, id)
         }
     }
     return <><tr

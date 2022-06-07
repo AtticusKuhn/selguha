@@ -20,8 +20,10 @@ const IndexPage: React.FC<{}> = () => {
             <CreateCategory />
             <UpcomingTodos />
         </div>
-        <button onClick={() => db.delete()} className="bg-accent font-bold p-lg m-auto">Delete All</button>
-
+        <div className="flex">
+            <button onClick={() => db.delete()} className="bg-accent font-bold p-lg m-auto">Delete All</button>
+            <button onClick={() => db.reset()} className="bg-secondary font-bold p-lg m-auto">Reset to Defaults</button>
+        </div>
     </div>
 }
 export default IndexPage

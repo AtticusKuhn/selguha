@@ -146,7 +146,7 @@ double_exact_date -> exact_date (_ ("of" | "in") _ exact_date):? {%d=>{
 exact_date -> slash_date {%id%}
  | dash_date {%id%}
  | date {%id%}
- | day {%id%}
+ | days {%id%}
  | month {%id%}
 slash_date -> digits "/" digits "/" digits{%d=>{
     console.log("slash date, d=",d)
@@ -198,6 +198,7 @@ month -> "jan"  {%monthParser%}
     |"october" {%monthParser%}
     |"november" {%monthParser%}
     | "december"{%monthParser%}
+days -> day "s":? {%d=>d[0]%}
 day -> 
  "mon" {%dayParser%}
  | "tues" {%dayParser%} 

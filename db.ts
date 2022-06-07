@@ -135,9 +135,36 @@ export class TodoDB extends Dexie {
             }
         }
     }
+    async addSubTodo(todoId: number, subTodoId: number): Promise<void> {
+        const todo = await this.todos.get(todoId)
+        this.todos.update(todoId,
+            {
+                subTodos: [...(todo.subTodos.filter(st => st !== subTodoId)), subTodoId]
+            })
+    }
+    async reset() {
+        await this.delete();
+
+    }
 }
 const populate = async () => {
-    //todo
+    db.categories.bulkAdd([
+        { name: "School", id: 0 },
+        { name: "Extra-Curriculars", id: 1 },
+        { name: "Family", id: 2 },
+        { name: "Fun", id: 3 },
+    ])
+    db.todos.bulkAdd([
+        { name: "Do Your Homework", categories: [0], completed: false, importance: 5, subTodos: [5, 6], time: "10/1/22", id: 4 },
+        { name: "English Homework", categories: [0], completed: false, importance: 2, subTodos: [], time: "9/21/22", id: 5 },
+        { name: "Physics Homework", categories: [0], completed: false, importance: 2, subTodos: [], time: "10/1/22", id: 6 },
+        { name: "Hang Out With Friends", categories: [3], completed: false, importance: 3, subTodos: [], time: "every monday", id: 7 },
+        { name: "Play Basketball", categories: [1, 3], completed: false, importance: 2, subTodos: [], time: "every wednesday", id: 8 },
+        { name: "Go Hiking With Family", categories: [2], completed: false, importance: 5, subTodos: [], time: "sunday", id: 9 },
+        { name: "Go Shopping", categories: [], completed: false, importance: 1, subTodos: [], time: "", id: 10 },
+        { name: "Respond to that email", categories: [], completed: false, importance: 3, subTodos: [], time: "", id: 11 },
+
+    ])
 }
 export const db = new TodoDB();
 
